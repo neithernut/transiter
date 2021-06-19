@@ -131,6 +131,18 @@ enum Mode {
 ///
 /// This trait defines the function `trans_iter_with` which, when called on a
 /// value, returns a `TransIter` with an initial set derived from that value.
+///
+/// # Example
+///
+/// ```
+/// use transiter::IntoTransIter;
+///
+/// let names: Vec<_> = String::new()
+///     .trans_iter_with(|s| { let s = s.clone(); ["a", "b", "c"].iter().map(move |c| s.clone() + c)})
+///     .take(10)
+///     .collect();
+/// assert_eq!(names, vec!["", "a", "b", "c", "aa", "ab", "ac", "ba", "bb", "bc"]);
+/// ```
 pub trait IntoTransIter<T> {
     /// Create a `TransIter` from this value
     ///
