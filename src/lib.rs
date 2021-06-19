@@ -71,3 +71,28 @@ impl<T> IntoTransIter<T> for T {
     }
 }
 
+
+/// Create a `TransIter` directly from some value, with type-specific recursion
+///
+/// This trait defines the function `trans_iter` which, when called on a value,
+/// returns a `TransIter` with an initial set derived from that value.
+///
+/// Users may implement this trait for types with inherent and/or obvious
+/// relations to other items of the same type such as recursive/tree-like
+/// structures.
+pub trait AutoTransIter<T>: IntoTransIter<T> + Sized {
+    /// Type of the iterator returned by `recurse`
+    type RecIter: IntoIterator<Item = T>;
+
+    /// Retrieve the "next" items reachable from a given item
+    fn recurse(item: &T) -> Self::RecIter;
+
+    /// Create a `TransIter` from this value
+    ///
+    /// Create a `TransIter` with an initial set derived from this value and the
+    /// type specific recursion function.
+    fn trans_iter(self) -> TransIter<fn(&T) -> Self::RecIter, Self::RecIter, T> {
+        self.trans_iter_with(Self::recurse)
+    }
+}
+
