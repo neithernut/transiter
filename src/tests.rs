@@ -2,6 +2,8 @@
 
 use quickcheck::{Arbitrary, Gen};
 
+use super::*;
+
 
 /// Dumb recursive structure for testing
 #[derive(Clone, Debug)]
@@ -14,6 +16,14 @@ impl Node {
     /// Retrieve the number of nodes
     pub fn count(&self) -> usize {
         self.children.iter().map(Self::count).sum::<usize>() + 1
+    }
+}
+
+impl AutoTransIter<Node> for Node {
+    type RecIter = Vec<Self>;
+
+    fn recurse(item: &Self) -> Self::RecIter {
+        item.children.clone()
     }
 }
 
