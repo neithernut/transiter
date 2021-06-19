@@ -9,6 +9,7 @@
 /// will only be yielded after the item passed in that call. I.e. if the
 /// recursion function yields the "children" of a node, a node will only be
 /// yielded after its "parent".
+#[derive(Clone, Debug)]
 pub struct TransIter<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> {
     get_next: F,
     queue: std::collections::VecDeque<T>,
