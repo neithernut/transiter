@@ -6,3 +6,7 @@ license = "MIT"
 authors = ["Julian Ganz <neither@nut.email>"]
 edition = "2018"
 keywords = ["iterator","recursion"]
+
+[dev-dependencies]
+quickcheck = "1"
+quickcheck_macros = "1"
