@@ -205,3 +205,11 @@ pub trait AutoTransIter<T>: IntoTransIter<T> + Sized {
     }
 }
 
+
+#[cfg(test)]
+#[macro_use(quickcheck)]
+extern crate quickcheck_macros;
+
+#[cfg(test)]
+mod tests;
+
