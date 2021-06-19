@@ -1,4 +1,4 @@
-//! Transitive iterator
+//! Transitive iterator and utilities
 
 
 /// Transitive iterator
@@ -43,6 +43,31 @@ impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> Iterator for TransIter<F, 
         res.as_ref().map(&mut self.get_next).map(|items| self.queue.extend(items));
 
         res
+    }
+}
+
+
+/// Create a `TransIter` directly from some value
+///
+/// This trait defines the function `trans_iter_with` which, when called on a
+/// value, returns a `TransIter` with an initial set derived from that value.
+pub trait IntoTransIter<T> {
+    /// Create a `TransIter` from this value
+    ///
+    /// Create a `TransIter` with an initial set derived from this value and
+    /// the given recursion function.
+    fn trans_iter_with<F: FnMut(&T) -> I, I: IntoIterator<Item = T>>(
+        self,
+        recursion: F
+    ) -> TransIter<F, I, T>;
+}
+
+impl<T> IntoTransIter<T> for T {
+    fn trans_iter_with<F: FnMut(&T) -> I, I: IntoIterator<Item = T>>(
+        self,
+        recursion: F
+    ) -> TransIter<F, I, T> {
+        TransIter::new(self, recursion)
     }
 }
 
