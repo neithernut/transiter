@@ -21,6 +21,16 @@ use std::iter::FromIterator;
 /// potentially cyclic structures on its own. For such structures, consider
 /// implementing the necessary filtering in the recursion function supplied
 /// during iterator creation.
+///
+/// # Example
+///
+/// ```
+/// let names: Vec<_> = transiter::TransIter::new(
+///     String::new(),
+///     |s| { let s = s.clone(); ["a", "b", "c"].iter().map(move |c| s.clone() + c)}
+/// ).take(10).collect();
+/// assert_eq!(names, vec!["", "a", "b", "c", "aa", "ab", "ac", "ba", "bb", "bc"]);
+/// ```
 #[derive(Clone, Debug)]
 pub struct TransIter<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> {
     get_next: F,
