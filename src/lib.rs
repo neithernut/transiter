@@ -1,4 +1,21 @@
 //! Transitive iterator and utilities
+//!
+//! This micro-crate provides `TransIter`, an iterator suitable for navigating
+//! DAGs. The iterator may be used for iterating over all nodes of some
+//! recursive structure or, more generally, implement a transitive closure. It
+//! requires a recursion function which yields an iterator over the next items
+//! or nodes.
+//!
+//! The iterator may be created via associated functions such as the obligatory
+//! `TransIter::new`. However, the canonical way to create a `TransIter` would
+//! be by using the `IntoTransIter` trait, which provides the `trans_iter_with`
+//! function. The crate provides a blanket implementation for this trait, which
+//! provides `trans_iter_with` for all potential item types.
+//!
+//! For types with an obvious or inherent relation to associated items, users
+//! may choose to implement the `AutoTransIter` trait. It provides the more
+//! convenient `trans_iter` function which does not require a recursion function
+//! to be supplied for each call.
 
 use std::iter::FromIterator;
 
