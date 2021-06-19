@@ -23,6 +23,15 @@ impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> TransIter<F, I, T> {
     pub fn new(initial: T, recursion: F) -> Self {
         Self {get_next: recursion, queue: std::iter::once(initial).collect()}
     }
+
+    /// Create a new transitive iterator with multiple initial items
+    ///
+    /// The iterator will yield all elements which are transitively reachable
+    /// from the `initial` set of items through the given `recursion` function,
+    /// including the items in the initial set.
+    pub fn new_multi(initial: impl IntoIterator<Item = T>, recursion: F) -> Self {
+        Self {get_next: recursion, queue: std::iter::FromIterator::from_iter(initial)}
+    }
 }
 
 impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> Iterator for TransIter<F, I, T> {
