@@ -5,6 +5,12 @@ use quickcheck::{Arbitrary, Gen};
 use super::*;
 
 
+#[quickcheck]
+fn smoke(node: Node) {
+    node.trans_iter().for_each(|_| ())
+}
+
+
 /// Dumb recursive structure for testing
 #[derive(Clone, Debug)]
 struct Node {
