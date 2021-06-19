@@ -15,6 +15,12 @@ use std::iter::FromIterator;
 /// By default, the iterator will yield siblings, i.e. the items yielded by a
 /// single call to the recursion function, grouped together. This behavior can
 /// be changed by calling `depth_first` or `depth_first_unordered`.
+///
+/// Note that the iterator itself will not filter items which are reachable via
+/// multiple paths. Generally, this iterator is not suitable for navigating
+/// potentially cyclic structures on its own. For such structures, consider
+/// implementing the necessary filtering in the recursion function supplied
+/// during iterator creation.
 #[derive(Clone, Debug)]
 pub struct TransIter<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> {
     get_next: F,
