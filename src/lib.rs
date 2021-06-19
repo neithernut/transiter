@@ -1,5 +1,7 @@
 //! Transitive iterator and utilities
 
+use std::iter::FromIterator;
+
 
 /// Transitive iterator
 ///
@@ -9,10 +11,15 @@
 /// will only be yielded after the item passed in that call. I.e. if the
 /// recursion function yields the "children" of a node, a node will only be
 /// yielded after its "parent".
+///
+/// By default, the iterator will yield siblings, i.e. the items yielded by a
+/// single call to the recursion function, grouped together. This behavior can
+/// be changed by calling `depth_first` or `depth_first_unordered`.
 #[derive(Clone, Debug)]
 pub struct TransIter<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> {
     get_next: F,
     queue: std::collections::VecDeque<T>,
+    mode: Mode,
 }
 
 impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> TransIter<F, I, T> {
@@ -22,7 +29,7 @@ impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> TransIter<F, I, T> {
     /// from the `initial` item through the given `recursion` function,
     /// including the `initial` itself.
     pub fn new(initial: T, recursion: F) -> Self {
-        Self {get_next: recursion, queue: std::iter::once(initial).collect()}
+        Self {get_next: recursion, queue: std::iter::once(initial).collect(), mode: Mode::BreadthFirst}
     }
 
     /// Create a new transitive iterator with multiple initial items
@@ -31,7 +38,42 @@ impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> TransIter<F, I, T> {
     /// from the `initial` set of items through the given `recursion` function,
     /// including the items in the initial set.
     pub fn new_multi(initial: impl IntoIterator<Item = T>, recursion: F) -> Self {
-        Self {get_next: recursion, queue: std::iter::FromIterator::from_iter(initial)}
+        Self {get_next: recursion, queue: FromIterator::from_iter(initial), mode: Mode::BreadthFirst}
+    }
+
+    /// Make this iterator iterate breadth first
+    ///
+    /// The iterator will yield siblings grouped together, in the order they
+    /// were yielded by the `Iterator` returned by the recursion function.
+    ///
+    /// This is the default mode.
+    pub fn breadth_first(self) -> Self {
+        Self {mode: Mode::BreadthFirst, ..self}
+    }
+
+    /// Make this iterator iterate depth first
+    ///
+    /// After yielding an item, the iterator will yield all the items reachable
+    /// from that item before yielding the items next sibling.
+    ///
+    /// Siblings will be yielded in the order they were yielded by the
+    /// `Iterator` returned by the recursion function. Note that preserving the
+    /// order inhibits some additional cost. Consider using
+    /// `depth_first_unordered` instead.
+    pub fn depth_first(self) -> Self {
+        Self {mode: Mode::DepthFirst, ..self}
+    }
+
+    /// Make this iterator iterate depth first, without preserving sibling order
+    ///
+    /// After yielding an item, the iterator will yield all the items reachable
+    /// from that item before yielding the items next sibling.
+    ///
+    /// The order of the siblings is not preserved, i.e. it may differ from the
+    /// order they were yielded by the `Iterator` returned by the recursion
+    /// function.
+    pub fn depth_first_unordered(self) -> Self {
+        Self {mode: Mode::DepthFirstUnordered, ..self}
     }
 }
 
@@ -40,10 +82,32 @@ impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> Iterator for TransIter<F, 
 
     fn next(&mut self) -> Option<T> {
         let res = self.queue.pop_front();
-        res.as_ref().map(&mut self.get_next).map(|items| self.queue.extend(items));
+        res.as_ref().map(&mut self.get_next).map(|items| match self.mode {
+            Mode::BreadthFirst          => self.queue.extend(items),
+            Mode::DepthFirst            => {
+                let mut items = Vec::from_iter(items);
+                self.queue.reserve(items.len());
+                while let Some(i) = items.pop() {
+                    self.queue.push_front(i);
+                }
+            },
+            Mode::DepthFirstUnordered   => {
+                let items = items.into_iter();
+                self.queue.reserve(items.size_hint().0);
+                items.for_each(|i| self.queue.push_front(i))
+            },
+        });
 
         res
     }
+}
+
+
+#[derive(Copy, Clone, Debug)]
+enum Mode {
+    BreadthFirst,
+    DepthFirst,
+    DepthFirstUnordered,
 }
 
 
