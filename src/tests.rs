@@ -77,11 +77,11 @@ impl Node {
     }
 }
 
-impl AutoTransIter<Node> for Node {
-    type RecIter = Vec<Self>;
+impl<'a> AutoTransIter<&'a Node> for &'a Node {
+    type RecIter = std::slice::Iter<'a, Node>;
 
-    fn recurse(item: &Self) -> Self::RecIter {
-        item.children.clone()
+    fn recurse(item: &&'a Node) -> Self::RecIter {
+        item.children.iter()
     }
 }
 
