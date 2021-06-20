@@ -75,6 +75,21 @@ fn node_order_depth_first(node: Node) -> bool {
     match_ids(ids.as_ref(), &node) == Some(&[])
 }
 
+#[quickcheck]
+fn node_order_depth_first_unordered(node: Node) -> bool {
+    /// Match the subtree with the given root node, return the remaining ids
+    fn match_ids<'a>(ids: &'a [u128], root: &Node) -> Option<&'a [u128]> {
+        // While we don't advertise any order in which siblings may appear, we
+        // know that with our implementation, they appear in reverse order.
+        ids.split_first()
+            .and_then(|(first, ids)| if *first == root.id { Some(ids) } else { None })
+            .and_then(|ids| root.children.iter().try_rfold(ids, |ids, sub| match_ids(ids, sub)))
+    }
+
+    let ids: Vec<_> = node.clone().trans_iter().depth_first_unordered().map(|n| n.id).collect();
+    match_ids(ids.as_ref(), &node) == Some(&[])
+}
+
 
 /// Dumb recursive structure for testing
 #[derive(Clone, Debug)]
