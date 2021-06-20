@@ -62,7 +62,7 @@ impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> TransIter<F, I, T> {
     /// from the `initial` item through the given `recursion` function,
     /// including the `initial` itself.
     pub fn new(initial: T, recursion: F) -> Self {
-        Self {get_next: recursion, queue: std::iter::once(initial).collect(), mode: Mode::BreadthFirst}
+        Self {get_next: recursion, queue: std::iter::once(initial).collect(), mode: Default::default()}
     }
 
     /// Create a new transitive iterator with multiple initial items
@@ -71,7 +71,7 @@ impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> TransIter<F, I, T> {
     /// from the `initial` set of items through the given `recursion` function,
     /// including the items in the initial set.
     pub fn new_multi(initial: impl IntoIterator<Item = T>, recursion: F) -> Self {
-        Self {get_next: recursion, queue: FromIterator::from_iter(initial), mode: Mode::BreadthFirst}
+        Self {get_next: recursion, queue: FromIterator::from_iter(initial), mode: Default::default()}
     }
 
     /// Make this iterator iterate breadth first
@@ -141,6 +141,12 @@ enum Mode {
     BreadthFirst,
     DepthFirst,
     DepthFirstUnordered,
+}
+
+impl Default for Mode {
+    fn default() -> Self {
+        Self::BreadthFirst
+    }
 }
 
 
