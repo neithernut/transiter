@@ -194,7 +194,8 @@ impl<T> IntoTransIter<T> for T {
 ///
 /// Users may implement this trait for types with inherent and/or obvious
 /// relations to other items of the same type such as recursive/tree-like
-/// structures.
+/// structures. In order to avoid deep copying, consider implementing this trait
+/// for references of your types rather than for structs and enums directly.
 pub trait AutoTransIter<T>: IntoTransIter<T> + Sized {
     /// Type of the iterator returned by `recurse`
     type RecIter: IntoIterator<Item = T>;
