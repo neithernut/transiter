@@ -9,10 +9,8 @@
 //! The iterator may be created via associated functions such as the obligatory
 //! [TransIter::new]. However, the canonical way to create a [TransIter] would
 //! be by using the [IntoTransIter] trait, which provides the
-//! [trans_iter_with](IntoTransIter::trans_iter_with) function. The crate
-//! provides a blanket implementation for this trait, which provides
-//! [trans_iter_with](IntoTransIter::trans_iter_with) for all potential item
-//! types.
+//! [trans_iter_with](IntoTransIter::trans_iter_with) function. This library
+//! provides a blanket implementation for item types.
 //!
 //! For types with an obvious or inherent relation to associated items, users
 //! may choose to implement the [AutoTransIter] trait. It provides the more
