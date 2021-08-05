@@ -151,10 +151,11 @@ impl Default for Mode {
 }
 
 
-/// Create a `TransIter` directly from some value
+/// Create a [TransIter] directly from some value
 ///
-/// This trait defines the function `trans_iter_with` which, when called on a
-/// value, returns a `TransIter` with an initial set derived from that value.
+/// This trait defines the [trans_iter_with](IntoTransIter::trans_iter_with)
+/// function which, when called on a value, returns a [TransIter] with an
+/// initial set derived from that value.
 ///
 /// # Example
 ///
@@ -168,9 +169,9 @@ impl Default for Mode {
 /// assert_eq!(names, vec!["", "a", "b", "c", "aa", "ab", "ac", "ba", "bb", "bc"]);
 /// ```
 pub trait IntoTransIter<T> {
-    /// Create a `TransIter` from this value
+    /// Create a [TransIter] from this value
     ///
-    /// Create a `TransIter` with an initial set derived from this value and
+    /// Create a [TransIter] with an initial set derived from this value and
     /// the given recursion function.
     fn trans_iter_with<F: FnMut(&T) -> I, I: IntoIterator<Item = T>>(
         self,
