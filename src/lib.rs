@@ -31,7 +31,8 @@ use std::iter::FromIterator;
 ///
 /// By default, the iterator will yield siblings, i.e. the items yielded by a
 /// single call to the recursion function, grouped together. This behavior can
-/// be changed by calling `depth_first` or `depth_first_unordered`.
+/// be changed by calling [depth_first](TransIter::depth_first) or
+/// [depth_first_unordered](TransIter::depth_first_unordered).
 ///
 /// Note that the iterator itself will not filter items which are reachable via
 /// multiple paths. Generally, this iterator is not suitable for navigating
