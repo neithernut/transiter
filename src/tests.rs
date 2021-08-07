@@ -92,7 +92,7 @@ fn node_order_depth_first_unordered(node: Node) -> bool {
 
 
 /// Dumb recursive structure for testing
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 struct Node {
     id: u128,
     children: Vec<Self>,
