@@ -29,6 +29,12 @@ fn node_count_depth_first_unordered(node: Node) -> bool {
 }
 
 #[quickcheck]
+fn node_count_prio_queue(node: Node) -> bool {
+    let count = node.count();
+    node.trans_prio_queue().count() == count
+}
+
+#[quickcheck]
 fn node_order_breadth_first(node: Node) -> bool {
     /// Match the ids against a sequence of (child) nodes, return the ids which
     /// may contain the next "sibling" sequences
