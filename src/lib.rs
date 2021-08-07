@@ -109,6 +109,13 @@ impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> TransIter<F, I, T> {
     pub fn depth_first_unordered(self) -> Self {
         Self {mode: Mode::DepthFirstUnordered, ..self}
     }
+
+    /// Convert this iterator into a [TransPrioQueue]
+    ///
+    /// The [TransPrioQueue] will yield the same items the [TransIter] would.
+    pub fn into_trans_prio_queue(self) -> TransPrioQueue<F, I, T> where T: Ord {
+        TransPrioQueue::new_multi(self.queue, self.get_next)
+    }
 }
 
 impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T> Iterator for TransIter<F, I, T> {
