@@ -238,6 +238,20 @@ pub trait IntoTransIter<T> {
         self,
         recursion: F
     ) -> TransIter<F, I, T>;
+
+    /// Create a [TransPrioQueue] from this value
+    ///
+    /// Create a [TransPrioQueue] with an initial set derived from this value
+    /// and the given recursion function.
+    fn trans_prio_queue_with<F: FnMut(&T) -> I, I: IntoIterator<Item = T>>(
+        self,
+        recursion: F
+    ) -> TransPrioQueue<F, I, T>
+    where Self: Sized,
+          T: Ord,
+    {
+        self.trans_iter_with(recursion).into_trans_prio_queue()
+    }
 }
 
 impl<T> IntoTransIter<T> for T {
