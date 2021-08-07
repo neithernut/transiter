@@ -288,6 +288,14 @@ pub trait AutoTransIter<T>: IntoTransIter<T> + Sized {
     fn trans_iter(self) -> TransIter<fn(&T) -> Self::RecIter, Self::RecIter, T> {
         self.trans_iter_with(Self::recurse)
     }
+
+    /// Create a [TransPrioQueue] from this value
+    ///
+    /// Create a [TransPrioQueue] with an initial set derived from this value
+    /// and the type specific recursion function.
+    fn trans_prio_queue(self) -> TransPrioQueue<fn(&T) -> Self::RecIter, Self::RecIter, T> where T: Ord {
+        self.trans_prio_queue_with(Self::recurse)
+    }
 }
 
 
