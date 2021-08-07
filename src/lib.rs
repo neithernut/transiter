@@ -151,6 +151,60 @@ impl Default for Mode {
 }
 
 
+/// Transitive priority queue
+///
+/// This iterator yields all elements which are transitively reachable from an
+/// initial set of items through a given recursion function, including those
+/// initial items. Items discovered through a call to the recursion function
+/// will be enqueued and only yielded after the item passed in that call. I.e.
+/// if the recursion function yields the "children" of a node, a node will only
+/// be yielded after its "parent".
+///
+/// Of the currently enqueued items, the queue will always yield the greatest
+/// one as defined via the item type's implementation of [Ord].
+///
+/// Note that the iterator itself will not filter items which are reachable via
+/// multiple paths. Generally, this iterator is not suitable for navigating
+/// potentially cyclic structures on its own. For such structures, consider
+/// implementing the necessary filtering in the recursion function supplied
+/// during iterator creation.
+#[derive(Clone, Debug)]
+pub struct TransPrioQueue<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T: Ord> {
+    get_next: F,
+    data: std::collections::BinaryHeap<T>,
+}
+
+impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T: Ord> TransPrioQueue<F, I, T> {
+    /// Create a new transitive priority queue
+    ///
+    /// The queue will yield all elements which are transitively reachable
+    /// from the `initial` item through the given `recursion` function,
+    /// including the `initial` itself.
+    pub fn new(initial: T, recursion: F) -> Self {
+        Self {get_next: recursion, data: std::iter::once(initial).collect()}
+    }
+
+    /// Create a new transitive priority queue with multiple initial items
+    ///
+    /// The queue will yield all elements which are transitively reachable
+    /// from the `initial` set of items through the given `recursion` function,
+    /// including the items in the initial set.
+    pub fn new_multi(initial: impl IntoIterator<Item = T>, recursion: F) -> Self {
+        Self {get_next: recursion, data: FromIterator::from_iter(initial)}
+    }
+}
+
+impl<F: FnMut(&T) -> I, I: IntoIterator<Item = T>, T: Ord> Iterator for TransPrioQueue<F, I, T> {
+    type Item = T;
+
+    fn next(&mut self) -> Option<T> {
+        let res = self.data.pop();
+        res.as_ref().map(&mut self.get_next).map(|items| self.data.extend(items));
+        res
+    }
+}
+
+
 /// Create a [TransIter] directly from some value
 ///
 /// This trait defines the [trans_iter_with](IntoTransIter::trans_iter_with)
