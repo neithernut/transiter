@@ -1,16 +1,17 @@
 //! Transitive iterator and utilities
 //!
-//! This micro-crate provides [TransIter], an iterator suitable for navigating
-//! DAGs. The iterator may be used for iterating over all nodes of some
-//! recursive structure or, more generally, implement a transitive closure. It
-//! requires a recursion function which yields an iterator over the next items
-//! or nodes.
+//! This micro-crate provides [TransIter] and [TransPrioQueue], iterators
+//! suitable for navigating DAGs. The iterators may be used for iterating over
+//! all nodes of some recursive structure or, more generally, implement a
+//! transitive closure. It requires a recursion function which yields an
+//! iterator over the next items or nodes.
 //!
-//! The iterator may be created via associated functions such as the obligatory
-//! [TransIter::new]. However, the canonical way to create a [TransIter] would
-//! be by using the [IntoTransIter] trait, which provides the
-//! [trans_iter_with](IntoTransIter::trans_iter_with) function. This library
-//! provides a blanket implementation for item types.
+//! The iterators may be created via associated functions such as the obligatory
+//! [TransIter::new]. However, the canonical way to create a [TransIter] or
+//! [TransPrioQueue] would be by using the [IntoTransIter] trait, which provides
+//! the [trans_iter_with](IntoTransIter::trans_iter_with) and
+//! [trans_prio_queue_with](IntoTransIter::trans_prio_queue_with) functions.
+//! This library provides a blanket implementation for item types.
 //!
 //! For types with an obvious or inherent relation to associated items, users
 //! may choose to implement the [AutoTransIter] trait. It provides the more
