@@ -109,6 +109,18 @@ impl Node {
     pub fn count(&self) -> usize {
         self.children.iter().map(Self::count).sum::<usize>() + 1
     }
+
+    /// Retrieve the number of nodes with a given depth
+    ///
+    /// The depth is `0`-based. When called with a `depth` of `0`, this function
+    /// will therefore always yield `1` for any given `Node`.
+    pub fn count_at_depth(&self, depth: usize) -> usize {
+        if let Some(depth) = depth.checked_sub(1) {
+            self.children.iter().map(|n| n.count_at_depth(depth)).sum::<usize>()
+        } else {
+            1
+        }
+    }
 }
 
 impl<'a> AutoTransIter<&'a Node> for &'a Node {
