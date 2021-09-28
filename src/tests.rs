@@ -36,36 +36,39 @@ fn node_count_prio_queue(node: Node) -> bool {
 
 #[quickcheck]
 fn node_order_breadth_first(node: Node) -> bool {
-    /// Match the ids against a sequence of (child) nodes, return the ids which
-    /// may contain the next "sibling" sequences
-    fn match_ids<'a>(ids: &'a [u128], reference: &[Node]) -> Option<&'a [u128]> {
-        if reference.len() > 0 {
+    /// Match the ids against a sequence of (child) nodes. The nodes are
+    /// expected within the given `counts[0]` after the given offset. `counts`
+    /// is expected to hold the number of nodes at a given depth.
+    ///
+    /// The function returns the offset at which to look for grand-siblings of
+    /// the given `reference`s.
+    fn match_ids(ids: &[u128], offset: usize, reference: &[Node], counts: &[usize]) -> Option<usize> {
+        if reference.is_empty() {
+            Some(offset)
+        } else if let Some((depth_count, counts)) = counts.split_first() {
+            let (ids, next) = ids.split_at(*depth_count);
+            let ids = ids.split_at(offset).1;
+
             // The generated sequence must contain a the children as a
             // contiguous sequence.
             ids.windows(reference.len())
-                .position(|ids| ids.iter().zip(reference).all(|(id, node)| *id == node.id))
+                .position(|ids| ids.iter().eq(reference.iter().map(|n| &n.id)))
                 .and_then(|pos| {
-                    // The same must hold for grandchildren. We also reduce the
-                    // search space based on the following:
-                    //  * Those sequences appear only after their respecive
-                    //    parents, i.e. after the "current" sequence.
-                    //  * Those sequences appear in the same order as their
-                    //    respective parents.
+                    // The same must hold for grandchildren. Those sequences
+                    // appear in the same order as their respective parents.
                     reference
                         .iter()
-                        .try_fold(
-                            ids.split_at(pos + reference.len()).1,
-                            |ids, sub| match_ids(ids, sub.children.as_ref())
-                        )
-                        .map(|_| ids)
+                        .try_fold(0, |off, sub| match_ids(next, off, sub.children.as_ref(), counts))
+                        .map(|_| offset + pos + reference.len())
                 })
         } else {
-            Some(ids)
+            Some(offset)
         }
     }
 
     let ids: Vec<_> = node.clone().trans_iter().breadth_first().map(|n| n.id).collect();
-    match_ids(ids.as_ref(), &[node]).is_some()
+    let counts: Vec<_> = (0..).map(|d| node.count_at_depth(d)).take_while(|c| *c > 0).collect();
+    match_ids(ids.as_ref(), 0, &[node], counts.as_ref()).is_some()
 }
 
 #[quickcheck]
