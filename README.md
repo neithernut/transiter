@@ -2,10 +2,11 @@
 
 This small rust crate provides `TransIter`, an iterator suitable for navigating
 recursive structures and DAGs. The iterator allows for multiple modes of
-iteration.
+iteration. For structures in which the nodes implement `Ord`, this crate also
+provides a `TransPrioQueue`.
 
-In addition to the iterator itself, this crate provides some convenience traits
-for creating such an iterator.
+In addition to the iterators themselves, this crate provides some convenience
+traits for creating instances of those iterators.
 
 ## Example
 
